@@ -86,7 +86,7 @@ contract DappFundX is Ownable, AccessControl {
     string memory image,
     uint256 amount
   ) public {
-   require(charityExist[id], 'Charity not found');
+    require(charityExist[id], 'Charity not found');
     require(msg.sender == charities[id].owner, 'Unauthorized Entity');
     require(amount > 0, 'Amount must be greater than 0');
     require(bytes(name).length > 0, 'Name is required');
@@ -200,7 +200,7 @@ contract DappFundX is Ownable, AccessControl {
     }
   }
 
-  function getSupports(uint256 id) public view returns (SupportStruct[] memory) {
+  function getSupporters(uint256 id) public view returns (SupportStruct[] memory) {
     return supportersOf[id];
   }
 

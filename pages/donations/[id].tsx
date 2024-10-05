@@ -9,10 +9,10 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Donor from '@/components/Donor'
 import Ban from '@/components/Ban'
-import { generateCharities, generateSupports } from '@/utils/fakeData'
 import { useDispatch, useSelector } from 'react-redux'
 import { globalActions } from '@/store/globalSlices'
 import { useEffect } from 'react'
+import { getCharity, getSupporters } from '@/services/blockchain'
 
 interface PageProps {
   charityData: CharityStruct
@@ -24,7 +24,7 @@ const Page: NextPage<PageProps> = ({ charityData, supportsData }) => {
 
   const dispatch = useDispatch()
   const { setCharity, setSupports } = globalActions
-  
+
   const router = useRouter()
   const { id } = router.query
 
@@ -72,8 +72,8 @@ export default Page
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { id } = context.query
 
-  const charityData: CharityStruct = generateCharities(Number(id))[0]
-  const supportsData: SupportStruct[] = generateSupports(7)
+  const charityData: CharityStruct = await getCharity(Number(id))
+  const supportsData: SupportStruct[] = await getSupporters(Number(id))
   return {
     props: {
       charityData: JSON.parse(JSON.stringify(charityData)),

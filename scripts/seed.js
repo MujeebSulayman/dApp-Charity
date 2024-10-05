@@ -79,8 +79,8 @@ async function getCharities(contract) {
   console.log('Charities:', result)
 }
 
-async function getSupports(contract, id) {
-  const result = await contract.getSupports(id)
+async function getSupporters(contract, id) {
+  const result = await contract.getSupporters(id)
   console.log('Supports:', result)
 }
 
@@ -126,7 +126,7 @@ async function main() {
 
     // Process #3
     await getCharities(dappFundContract)
-    await getSupports(dappFundContract, 1)
+    await getSupporters(dappFundContract, 1)
   } catch (error) {
     console.error('Unhandled error:', error)
   }
