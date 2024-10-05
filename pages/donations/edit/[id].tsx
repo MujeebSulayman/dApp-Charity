@@ -1,5 +1,5 @@
 import NavBtn from '@/components/NavBtn'
-import { generateCharities } from '@/utils/fakeData'
+import { getCharity, updateCharity } from '@/services/blockchain'
 import { CharityParams, CharityStruct } from '@/utils/type.dt'
 import { GetServerSidePropsContext, NextPage } from 'next'
 import Head from 'next/head'
@@ -38,8 +38,13 @@ const Page: NextPage<{ charityData: CharityStruct }> = ({ charityData }) => {
 
     await toast.promise(
       new Promise<void>((resolve, reject) => {
-        console.log(charity)
-        resolve()
+        updateCharity(charity)
+          .then((tx) => {
+            console.log(tx)
+            router.push('/donations/' + id)
+            resolve(tx)
+          })
+          .catch((error) => reject(error))
       }),
       {
         pending: 'Approve transaction...',
@@ -52,7 +57,7 @@ const Page: NextPage<{ charityData: CharityStruct }> = ({ charityData }) => {
   return (
     <div>
       <Head>
-        <title>Charity Edit</title>
+        <title>Charity Update</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -117,7 +122,7 @@ const Page: NextPage<{ charityData: CharityStruct }> = ({ charityData }) => {
                   type="text"
                   name="image"
                   placeholder="Image URL"
-                  pattern="https?://.+(\.png|\.jpg|\.jpeg|\.gif)"
+                  pattern="https?://.+(\.(jpg|png|gif))?$"
                   title="Please enter a valid image URL (http(s)://...(.png|.jpg|.jpeg|.gif))"
                   required
                   value={charity.image}
@@ -131,7 +136,7 @@ const Page: NextPage<{ charityData: CharityStruct }> = ({ charityData }) => {
                   border-0 focus:outline-none focus:ring-0"
                   type="text"
                   name="profile"
-                  placeholder="Your LinkedIn Profile"
+                  placeholder="Your Social Profile URL"
                   required
                   value={charity.profile}
                   onChange={handleChange}
@@ -178,7 +183,7 @@ export default Page
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { id } = context.query
 
-  const charityData: CharityStruct = generateCharities(Number(id))[0]
+  const charityData: CharityStruct = await getCharity(Number(id))
   return {
     props: {
       charityData: JSON.parse(JSON.stringify(charityData)),

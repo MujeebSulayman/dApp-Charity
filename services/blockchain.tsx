@@ -1,8 +1,9 @@
-import { ethers } from 'ethers'
+import { ethers, id } from 'ethers'
 import address from '@/contracts/contractAddress.json'
 import abi from '@/artifacts/contracts/DappFundX.sol/DappFundX.json'
-import { CharityStruct, SupportStruct } from '@/utils/type.dt'
+import { CharityParams, CharityStruct, SupportStruct } from '@/utils/type.dt'
 import Supports from '@/components/Supports'
+import { now } from 'moment'
 
 const toWei = (num: number) => ethers.parseEther(num.toString())
 const fromWei = (num: number) => ethers.formatEther(num.toString())
@@ -52,6 +53,84 @@ const getSupporters = async (id: number): Promise<SupportStruct[]> => {
   return structuredSupporters(supporters)
 }
 
+const updateCharity = async (charity: CharityParams): Promise<void> => {
+  if (!ethereum) {
+    reportError('Please install a wallet provider')
+    return Promise.reject(new Error('Browser Provider not installed'))
+  }
+  try {
+    const contract = await getEthereumContract()
+    tx = await contract.updateCharity(
+      charity.name,
+      charity.id,
+      charity.fullname,
+      charity.profile,
+      charity.image,
+      charity.description,
+      toWei(Number(charity.amount))
+    )
+    await tx.wait()
+    return Promise.resolve(tx)
+  } catch (error) {
+    reportError(error)
+    return Promise.reject(error)
+  }
+}
+
+const createCharity = async (charity: CharityParams): Promise<void> => {
+  if (!ethereum) {
+    reportError('Please install a wallet provider')
+    return Promise.reject(new Error('Browser Provider not installed'))
+  }
+  try {
+    const contract = await getEthereumContract()
+    tx = await contract.createCharity(
+      charity.name,
+      charity.fullname,
+      charity.profile,
+      charity.image,
+      charity.description,
+      toWei(Number(charity.amount))
+    )
+    await tx.wait()
+    return Promise.resolve(tx)
+  } catch (error) {
+    reportError(error)
+    return Promise.reject(error)
+  }
+}
+
+const deleteCharity = async (charity: CharityParams): Promise<void> => {
+  if (!ethereum) {
+    reportError('Please install a wallet provider')
+    return Promise.reject(new Error('Browser Provider not installed'))
+  }
+  try {
+    const contract = await getEthereumContract()
+    tx = await contract.deleteCharity(id)
+    await tx.wait()
+    return Promise.resolve(tx)
+  } catch (error) {
+    reportError(error)
+    return Promise.reject(error)
+  }
+}
+const banCharity = async (charity: CharityParams): Promise<void> => {
+  if (!ethereum) {
+    reportError('Please install a wallet provider')
+    return Promise.reject(new Error('Browser Provider not installed'))
+  }
+  try {
+    const contract = await getEthereumContract()
+    tx = await contract.toggleBan(id)
+    await tx.wait()
+    return Promise.resolve(tx)
+  } catch (error) {
+    reportError(error)
+    return Promise.reject(error)
+  }
+}
+
 const structuredCharities = (charities: CharityStruct[]): CharityStruct[] =>
   charities
     .map((charity) => ({
@@ -84,4 +163,13 @@ const structuredSupporters = (supports: SupportStruct[]): SupportStruct[] =>
     }))
     .sort((a, b) => b.timestamp - a.timestamp)
 
-export { getCharities, getMyCharities, getCharity, getSupporters }
+export {
+  getCharities,
+  getMyCharities,
+  banCharity,
+  deleteCharity,
+  getCharity,
+  getSupporters,
+  updateCharity,
+  createCharity,
+}

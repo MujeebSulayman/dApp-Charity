@@ -22,31 +22,32 @@ const Cards: React.FC<{ charities: CharityStruct[] }> = ({ charities }) => {
 
 const Card: React.FC<{ charity: CharityStruct }> = ({ charity }) => {
   return (
-    <div className="shadow flex flex-col w-80 bg-gray-50 rounded-lg overflow-hidden">
-      <img src={charity.image} alt={charity.name} />
-      <div className="p-5 space-y-8">
-        <div>
-          <h4 className="text-xl font-medium capitalize mb-1">{charity.name}</h4>
-          <div className="flex justify-start items-center">
-            <span>{charity.amount.toFixed(2)} ETH</span>
-            <BsDot size={30} className="text-gray-300" />
-            <span className="text-gray-500">
-              {charity.donations == 1
-                ? `${charity.donations} donation`
-                : `${charity.donations} donations`}
-            </span>
+    <Link href={'/donations/' + charity.id}>
+      <div className="shadow flex flex-col w-80 bg-gray-50 rounded-lg overflow-hidden">
+        <img src={charity.image} alt={charity.name} />
+        <div className="p-5 space-y-8">
+          <div>
+            <h4 className="text-xl font-medium capitalize mb-1">{charity.name}</h4>
+            <div className="flex justify-start items-center">
+              <span>{charity.amount.toFixed(2)} ETH</span>
+              <BsDot size={30} className="text-gray-300" />
+              <span className="text-gray-500">
+                {charity.donations == 1
+                  ? `${charity.donations} donation`
+                  : `${charity.donations} donations`}
+              </span>
+            </div>
           </div>
-        </div>
-        <Link
-          className="flex justify-start items-center space-x-2
+          <div
+            className="flex justify-start items-center space-x-2
           transition-all duration-300 ease-in-out hover:pl-5"
-          href={'/donations/' + charity.id}
-        >
+          ></div>
+
           <span>Donate now</span>
           <MdChevronRight />
-        </Link>
+        </div>
       </div>
-    </div>
+    </Link>
   )
 }
 

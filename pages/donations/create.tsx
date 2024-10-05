@@ -1,5 +1,8 @@
 import NavBtn from '@/components/NavBtn'
+import { createCharity } from '@/services/blockchain'
 import { CharityParams } from '@/utils/type.dt'
+import { rejects } from 'assert'
+import { error } from 'console'
 import { NextPage } from 'next'
 import Head from 'next/head'
 import { ChangeEvent, FormEvent, useState } from 'react'
@@ -41,13 +44,18 @@ const Page: NextPage = () => {
 
     await toast.promise(
       new Promise<void>((resolve, reject) => {
-        console.log(charity)
-        resolve()
+        createCharity(charity)
+          .then((tx) => {
+            resetForm()
+            console.log(tx)
+            resolve(tx)
+          })
+          .catch((error) => reject(error))
       }),
       {
         pending: 'Approve transaction...',
-        success: 'Charity created successfully 👌',
-        error: 'Encountered error 🤯',
+        success: 'Charity created successful',
+        error: 'Encountered error',
       }
     )
   }
@@ -81,6 +89,15 @@ const Page: NextPage = () => {
               <h2>Create Charity</h2>
             </div>
 
+            {charity.image && (
+              <div className="flex justify-center mb-6">
+                <img
+                  src={charity.image}
+                  alt={charity.name}
+                  className="h-48 w-full object-cover rounded-lg shadow-md"
+                />
+              </div>
+            )}
             <div className="flex justify-between items-center flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
               <div className="flex justify-between items-center rounded-xl p-2 w-full border border-gray-300">
                 <input
@@ -128,10 +145,10 @@ const Page: NextPage = () => {
                 <input
                   className="block w-full text-sm text-slate-500 bg-transparent
                   border-0 focus:outline-none focus:ring-0"
-                  type="text"
+                  type="url"
                   name="image"
                   placeholder="Image URL"
-                  pattern="https?://.+(\.png|\.jpg|\.jpeg|\.gif)"
+                  pattern="https?://.+(\.(jpg|png|gif))?$"
                   title="Please enter a valid image URL (http(s)://...(.png|.jpg|.jpeg|.gif))"
                   required
                   value={charity.image}
@@ -145,7 +162,7 @@ const Page: NextPage = () => {
                   border-0 focus:outline-none focus:ring-0"
                   type="text"
                   name="profile"
-                  placeholder="Your LinkedIn Profile"
+                  placeholder="Your Social Profile URL"
                   required
                   value={charity.profile}
                   onChange={handleChange}

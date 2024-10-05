@@ -47,7 +47,7 @@ const Page: NextPage<PageProps> = ({ charityData, supportsData }) => {
       {charity && (
         <div
           className="flex flex-col sm:flex-row sm:justify-between items-start
-          lg:w-2/3 w-full mx-auto space-y-4 sm:space-y-0 sm:space-x-10 my-10 px-8 sm:px-0"
+          lg:w-4/5 w-full mx-auto space-y-4 sm:space-y-0 sm:space-x-10 my-10 px-8 sm:px-0"
         >
           <Details supports={supports} charity={charity} />
           <Payment supports={supports.slice(0, 4)} charity={charity} />
