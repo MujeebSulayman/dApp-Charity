@@ -15,10 +15,11 @@ const Details: React.FC<ComponentProp> = ({ charity, supports }) => {
       <h4 className="text-4xl font-semibold capitalize">{charity?.name}</h4>
       <div className="w-full h-[500px] relative">
         <Image
-          layout="fill"
+          fill
           src={charity?.image}
           alt="donation"
           className="rounded-xl object-cover"
+          style={{ objectFit: 'cover' }} // Ensure the image covers the area
         />
       </div>
 

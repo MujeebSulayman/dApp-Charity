@@ -67,6 +67,7 @@ async function createCharity(contract, charity) {
   await tx.wait()
 }
 
+
 async function makeDonations(contract, id, donation) {
   const tx = await contract.donate(id, donation.fullname, donation.comment, {
     value: toWei(donation.amount),
