@@ -4,23 +4,29 @@ import { BsTrash3 } from 'react-icons/bs'
 import { CharityStruct } from '@/utils/type.dt'
 import { useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
+import { deleteCharity } from '@/services/blockchain'
 
 const Delete: React.FC<{ charity: CharityStruct }> = ({ charity }) => {
   const { address } = useAccount()
   const deleteModal = 'scale-0'
+
 
   const handleDelete = async () => {
     if (!address) return toast.warning('Connect wallet first!')
 
     await toast.promise(
       new Promise<void>((resolve, reject) => {
-        console.log(charity)
-        resolve()
+        deleteCharity(charity.id)
+        .then((tx) => {
+          console.log(tx)
+          resolve(tx)
+        })
+        .catch((error) => reject(error) )
       }),
       {
         pending: 'Approve transaction...',
-        success: 'Charity deleted successfully 👌',
-        error: 'Encountered error 🤯',
+        success: 'Charity deleted successful',
+        error: 'Encountered error',
       }
     )
   }

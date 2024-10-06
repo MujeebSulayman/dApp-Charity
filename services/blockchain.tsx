@@ -122,7 +122,7 @@ const banCharity = async (charity: CharityParams): Promise<void> => {
   }
   try {
     const contract = await getEthereumContract()
-    tx = await contract.toggleBan(id)
+    tx = await contract. toggleBan(id)
     await tx.wait()
     return Promise.resolve(tx)
   } catch (error) {
@@ -163,13 +163,4 @@ const structuredSupporters = (supports: SupportStruct[]): SupportStruct[] =>
     }))
     .sort((a, b) => b.timestamp - a.timestamp)
 
-export {
-  getCharities,
-  getMyCharities,
-  banCharity,
-  deleteCharity,
-  getCharity,
-  getSupporters,
-  updateCharity,
-  createCharity,
-}
+export { getCharities, getMyCharities, banCharity, deleteCharity, getCharity, getSupporters, updateCharity, createCharity }
