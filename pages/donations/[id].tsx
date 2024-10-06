@@ -3,7 +3,7 @@ import Details from '@/components/Details'
 import Supports from '@/components/Supports'
 import NavBtn from '@/components/NavBtn'
 import Payment from '@/components/Payment'
-import { CharityStruct, GlobalState, RootState, SupportStruct } from '@/utils/type.dt'
+import { CharityStruct, RootState, SupportStruct } from '@/utils/type.dt'
 import { GetServerSidePropsContext, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -12,11 +12,12 @@ import Ban from '@/components/Ban'
 import { useDispatch, useSelector } from 'react-redux'
 import { globalActions } from '@/store/globalSlices'
 import { useEffect } from 'react'
-import { getCharity, getSupporters } from '@/services/blockchain'
+import { getAdmin, getCharity, getSupporters } from '@/services/blockchain'
 
 interface PageProps {
   charityData: CharityStruct
   supportsData: SupportStruct[]
+  admin?: string
 }
 
 const Page: NextPage<PageProps> = ({ charityData, supportsData }) => {
@@ -60,7 +61,7 @@ const Page: NextPage<PageProps> = ({ charityData, supportsData }) => {
           <Donor charity={charity} />
           <Ban charity={charity} />
           <Supports supports={supports} />
-          <NavBtn owner={charity?.owner} donationId={Number(id)} />
+          <NavBtn charity={charity} admin="admin" />
         </>
       )}
     </div>
@@ -74,9 +75,11 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
   const charityData: CharityStruct = await getCharity(Number(id))
   const supportsData: SupportStruct[] = await getSupporters(Number(id))
+  const admin: string = await getAdmin()
   return {
     props: {
       charityData: JSON.parse(JSON.stringify(charityData)),
+      admin: JSON.parse(JSON.stringify(admin)),
       supportsData: JSON.parse(JSON.stringify(supportsData)),
     },
   }

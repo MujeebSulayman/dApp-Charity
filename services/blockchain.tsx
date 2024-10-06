@@ -2,8 +2,6 @@ import { ethers, id } from 'ethers'
 import address from '@/contracts/contractAddress.json'
 import abi from '@/artifacts/contracts/DappFundX.sol/DappFundX.json'
 import { CharityParams, CharityStruct, SupportStruct } from '@/utils/type.dt'
-import Supports from '@/components/Supports'
-import { now } from 'moment'
 
 const toWei = (num: number) => ethers.parseEther(num.toString())
 const fromWei = (num: number) => ethers.formatEther(num.toString())
@@ -29,6 +27,12 @@ const getEthereumContract = async () => {
   }
 }
 
+const getAdmin = async (): Promise<string> => {
+  const contract = await getEthereumContract()
+  const owner = await contract.owner()
+  return owner
+}
+
 const getCharities = async (): Promise<CharityStruct[]> => {
   const contract = await getEthereumContract()
   const charities = await contract.getCharities()
@@ -37,7 +41,7 @@ const getCharities = async (): Promise<CharityStruct[]> => {
 
 const getMyCharities = async (): Promise<CharityStruct[]> => {
   const contract = await getEthereumContract()
-  const charities = await contract.getMyCharities()
+  const charities = await contract.getCharities()
   return structuredCharities(charities)
 }
 
@@ -100,7 +104,7 @@ const createCharity = async (charity: CharityParams): Promise<void> => {
   }
 }
 
-const deleteCharity = async (charity: CharityParams): Promise<void> => {
+const deleteCharity = async (id: number): Promise<void> => {
   if (!ethereum) {
     reportError('Please install a wallet provider')
     return Promise.reject(new Error('Browser Provider not installed'))
@@ -115,14 +119,14 @@ const deleteCharity = async (charity: CharityParams): Promise<void> => {
     return Promise.reject(error)
   }
 }
-const banCharity = async (charity: CharityParams): Promise<void> => {
+const banCharity = async (id: number): Promise<void> => {
   if (!ethereum) {
     reportError('Please install a wallet provider')
     return Promise.reject(new Error('Browser Provider not installed'))
   }
   try {
     const contract = await getEthereumContract()
-    tx = await contract. toggleBan(id)
+    tx = await contract.toggleBan(id)
     await tx.wait()
     return Promise.resolve(tx)
   } catch (error) {
@@ -163,4 +167,14 @@ const structuredSupporters = (supports: SupportStruct[]): SupportStruct[] =>
     }))
     .sort((a, b) => b.timestamp - a.timestamp)
 
-export { getCharities, getMyCharities, banCharity, deleteCharity, getCharity, getSupporters, updateCharity, createCharity }
+export {
+  getCharities,
+  getMyCharities,
+  banCharity,
+  deleteCharity,
+  getCharity,
+  getAdmin,
+  getSupporters,
+  updateCharity,
+  createCharity,
+}

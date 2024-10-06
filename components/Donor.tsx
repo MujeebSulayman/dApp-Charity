@@ -1,12 +1,15 @@
 import React, { ChangeEvent, FormEvent, useState } from 'react'
 import { TfiClose } from 'react-icons/tfi'
-import { CharityStruct, DonorParams } from '@/utils/type.dt'
+import { CharityStruct, DonorParams, RootState } from '@/utils/type.dt'
 import { useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
+import { useDispatch, useSelector } from 'react-redux'
+import { globalActions } from '@/store/globalSlices'
 
 const Donor: React.FC<{ charity: CharityStruct }> = ({ charity }) => {
-  const donorsModal = 'scale-0'
-
+  const { donorsModal } = useSelector((states: RootState) => states.globalStates)
+  const dispatch = useDispatch()
+  const { setDonorsModal } = globalActions
   const { address } = useAccount()
   const [donor, setDonor] = useState<DonorParams>({
     id: charity.id,
@@ -57,11 +60,15 @@ const Donor: React.FC<{ charity: CharityStruct }> = ({ charity }) => {
       className={`fixed top-0 left-0 w-screen h-screen flex items-center justify-center
     bg-black bg-opacity-50 transform z-[3000] transition-transform duration-300 ${donorsModal}`}
     >
-      <div className="bg-white shadow-lg shadow-slate-900 rounded-xl w-11/12 md:w-1/5 h-7/12 p-6">
+      <div className="bg-white shadow-lg shadow-slate-900 rounded-xl w-11/12 md:w-2/5 h-7/12 p-6">
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <div className="flex flex-row justify-between items-center">
             <p className="font-medium text-2xl">Support Us</p>
-            <button type="button" className="border-0 bg-transparent focus:outline-none">
+            <button
+              onClick={() => dispatch(setDonorsModal('scale-0'))}
+              type="button"
+              className="border-0 bg-transparent focus:outline-none"
+            >
               <TfiClose className="text-black" />
             </button>
           </div>

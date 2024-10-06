@@ -3,6 +3,9 @@ import Donation from './Donation'
 import { FaBan, FaEthereum } from 'react-icons/fa'
 import { CharityStruct, SupportStruct } from '@/utils/type.dt'
 import { useAccount } from 'wagmi'
+import { useDispatch } from 'react-redux'
+import { useRouter } from 'next/router'
+import { globalActions } from '@/store/globalSlices'
 
 interface ComponentProp {
   charity: CharityStruct
@@ -11,6 +14,10 @@ interface ComponentProp {
 
 const Payment: React.FC<ComponentProp> = ({ charity, supports }) => {
   const { address } = useAccount()
+
+  const dispatch = useDispatch()
+  const { setDonorsModal } = globalActions
+  const router = useRouter()
 
   return (
     <div
@@ -46,6 +53,7 @@ const Payment: React.FC<ComponentProp> = ({ charity, supports }) => {
         </button>
         {!charity.banned ? (
           <button
+            onClick={() => dispatch(setDonorsModal('scale-100'))}
             className="bg-amber-500 py-3 px-20 rounded-xl
           transition-all duration-300 ease-in-out
           hover:bg-amber-400"
