@@ -5,12 +5,15 @@ import { useAccount } from 'wagmi'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
 import { globalActions } from '@/store/globalSlices'
+import { makeDonation } from '@/services/blockchain'
+import { useRouter } from 'next/router'
 
 const Donor: React.FC<{ charity: CharityStruct }> = ({ charity }) => {
   const { donorsModal } = useSelector((states: RootState) => states.globalStates)
   const dispatch = useDispatch()
   const { setDonorsModal } = globalActions
   const { address } = useAccount()
+  const router = useRouter()
   const [donor, setDonor] = useState<DonorParams>({
     id: charity.id,
     fullname: '',
@@ -27,13 +30,18 @@ const Donor: React.FC<{ charity: CharityStruct }> = ({ charity }) => {
 
     await toast.promise(
       new Promise<void>((resolve, reject) => {
-        console.log(donor)
-        resolve()
+        makeDonation(donor)
+          .then((tx) => {
+            resetForm()
+            console.log(tx)
+            resolve(tx)
+          })
+          .catch((error) => reject(error))
       }),
       {
         pending: 'Approve transaction...',
-        success: 'Donotion received successfully 👌',
-        error: 'Encountered error 🤯',
+        success: 'Donotion received successful',
+        error: 'Encountered an error',
       }
     )
   }

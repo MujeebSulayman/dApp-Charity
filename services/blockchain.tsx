@@ -1,7 +1,9 @@
 import { ethers, id } from 'ethers'
 import address from '@/contracts/contractAddress.json'
 import abi from '@/artifacts/contracts/DappFundX.sol/DappFundX.json'
-import { CharityParams, CharityStruct, SupportStruct } from '@/utils/type.dt'
+import { CharityParams, CharityStruct, DonorParams, SupportStruct } from '@/utils/type.dt'
+import { store } from '@/store'
+import { globalActions } from '@/store/globalSlices'
 
 const toWei = (num: number) => ethers.parseEther(num.toString())
 const fromWei = (num: number) => ethers.formatEther(num.toString())
@@ -10,7 +12,7 @@ let ethereum: any
 let tx: any
 
 if (typeof window !== 'undefined') ethereum = (window as any).ethereum
-
+const { setSupports, setCharity } = globalActions
 const getEthereumContract = async () => {
   const account = await ethereum?.request?.({ method: 'eth_Accounts' })
   if (account?.length > 0) {
@@ -27,36 +29,42 @@ const getEthereumContract = async () => {
   }
 }
 
+//Get admin address
 const getAdmin = async (): Promise<string> => {
   const contract = await getEthereumContract()
   const owner = await contract.owner()
   return owner
 }
 
+//Get All Charities
 const getCharities = async (): Promise<CharityStruct[]> => {
   const contract = await getEthereumContract()
   const charities = await contract.getCharities()
   return structuredCharities(charities)
 }
 
+//Get My Charities
 const getMyCharities = async (): Promise<CharityStruct[]> => {
   const contract = await getEthereumContract()
   const charities = await contract.getCharities()
   return structuredCharities(charities)
 }
 
+//Get Charity
 const getCharity = async (id: number): Promise<CharityStruct> => {
   const contract = await getEthereumContract()
   const charity = await contract.getCharity(id)
   return structuredCharities([charity])[0]
 }
 
+//Get Supporters
 const getSupporters = async (id: number): Promise<SupportStruct[]> => {
   const contract = await getEthereumContract()
   const supporters = await contract.getSupporters(id)
   return structuredSupporters(supporters)
 }
 
+//Update Charity
 const updateCharity = async (charity: CharityParams): Promise<void> => {
   if (!ethereum) {
     reportError('Please install a wallet provider')
@@ -81,6 +89,7 @@ const updateCharity = async (charity: CharityParams): Promise<void> => {
   }
 }
 
+//Create Charity
 const createCharity = async (charity: CharityParams): Promise<void> => {
   if (!ethereum) {
     reportError('Please install a wallet provider')
@@ -104,6 +113,7 @@ const createCharity = async (charity: CharityParams): Promise<void> => {
   }
 }
 
+//Delete Charity
 const deleteCharity = async (id: number): Promise<void> => {
   if (!ethereum) {
     reportError('Please install a wallet provider')
@@ -119,6 +129,8 @@ const deleteCharity = async (id: number): Promise<void> => {
     return Promise.reject(error)
   }
 }
+
+//Ban Charity
 const banCharity = async (id: number): Promise<void> => {
   if (!ethereum) {
     reportError('Please install a wallet provider')
@@ -128,6 +140,33 @@ const banCharity = async (id: number): Promise<void> => {
     const contract = await getEthereumContract()
     tx = await contract.toggleBan(id)
     await tx.wait()
+    return Promise.resolve(tx)
+  } catch (error) {
+    reportError(error)
+    return Promise.reject(error)
+  }
+}
+
+//Make Donation
+const makeDonation = async (donation: DonorParams): Promise<void> => {
+  if (!ethereum) {
+    reportError('Please install a wallet provider')
+    return Promise.reject(new Error('Browser Provider not installed'))
+  }
+  try {
+    const contract = await getEthereumContract()
+    tx = await contract.donate(donation.id, donation.fullname, donation.comment, {
+      value: toWei(Number(donation.amount)),
+    })
+    await tx.wait()
+
+    const supporters = await getSupporters(Number(donation.id))
+    store.dispatch(setSupports(supporters))
+
+    const charity = await getCharity(Number(donation.id))
+    store.dispatch(setCharity(charity))
+
+
     return Promise.resolve(tx)
   } catch (error) {
     reportError(error)
@@ -174,6 +213,7 @@ export {
   deleteCharity,
   getCharity,
   getAdmin,
+  makeDonation,
   getSupporters,
   updateCharity,
   createCharity,
