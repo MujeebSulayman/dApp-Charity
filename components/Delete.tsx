@@ -1,4 +1,4 @@
-import React from 'react'
+ import React from 'react'
 import { TfiClose } from 'react-icons/tfi'
 import { BsTrash3 } from 'react-icons/bs'
 import { CharityStruct, RootState } from '@/utils/type.dt'

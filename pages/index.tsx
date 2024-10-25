@@ -23,7 +23,7 @@ const Page: NextPage<{ charitiesData: CharityStruct[] }> = ({ charitiesData }) =
       <div className="h-10"></div>
       <Start />
       <div className="h-10"></div>
-      <NavBtn />
+      
     </div>
   )
 }

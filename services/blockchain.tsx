@@ -1,4 +1,4 @@
-import { ethers, id } from 'ethers'
+import { ethers } from 'ethers'
 import address from '@/contracts/contractAddress.json'
 import abi from '@/artifacts/contracts/DappFundX.sol/DappFundX.json'
 import { CharityParams, CharityStruct, DonorParams, SupportStruct } from '@/utils/type.dt'
@@ -13,19 +13,22 @@ let tx: any
 
 if (typeof window !== 'undefined') ethereum = (window as any).ethereum
 const { setSupports, setCharity } = globalActions
+
+
 const getEthereumContract = async () => {
-  const account = await ethereum?.request?.({ method: 'eth_Accounts' })
-  if (account?.length > 0) {
+  const accounts = await ethereum?.request?.({ method: 'eth_accounts' })
+
+  if (accounts?.length > 0) {
     const provider = new ethers.BrowserProvider(ethereum)
     const signer = await provider.getSigner()
-    const contract = new ethers.Contract(address.dappFundContract, abi.abi, signer)
-    return contract
+    const contracts = new ethers.Contract(address.dappFundContract, abi.abi, signer)
+
+    return contracts
   } else {
     const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL)
-    const wallet = ethers.Wallet.createRandom()
-    const signer = wallet.connect(provider)
-    const contract = new ethers.Contract(address.dappFundContract, abi.abi, signer)
-    return contract
+    const contracts = new ethers.Contract(address.dappFundContract, abi.abi, provider)
+
+    return contracts
   }
 }
 
@@ -165,7 +168,6 @@ const makeDonation = async (donation: DonorParams): Promise<void> => {
 
     const charity = await getCharity(Number(donation.id))
     store.dispatch(setCharity(charity))
-
 
     return Promise.resolve(tx)
   } catch (error) {

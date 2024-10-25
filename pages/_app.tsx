@@ -21,7 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
     return null
   } else {
     return (
-      <Providers pageProps={pageProps}>
+      <Providers>
         <Provider store={store}>
           <div className="min-h-screen relative">
             <Header />
